@@ -23,29 +23,40 @@ def calculate_demographic_data(print_data=True):
     lower_education = df['education'].isin(['Bachelors', 'Masters', 'Doctorate']).value_counts()[False]
 
     # percentage with salary >50K
-    filtro = df['education'].isin(['Bachelors', 'Masters', 'Doctorate']) & (df['salary'] == '>50K')
-    resultado_graduados_ricos = df[filtro].shape[0]
-    higher_education_rich =   ((resultado_graduados_ricos / higher_educationh) * 100).round(1)
+    higher_education_rich = higher_education_rich = (df[df['education'].isin(['Bachelors', 'Masters', 'Doctorate'])]['salary'].value_counts(normalize=True)['>50K'] * 100).round(1)
+    #filtro = df['education'].isin(['Bachelors', 'Masters', 'Doctorate']) & (df['salary'] == '>50K')
+    #resultado_graduados_ricos = df[filtro].shape[0]
+    #higher_education_rich =   ((resultado_graduados_ricos / higher_education) * 100).round(1)
     
-    
-    filtro2 = ~df['education'].isin(['Bachelors', 'Masters', 'Doctorate']) & (df['salary'] == '>50K')
-    resultado__no_graduados_ricos = df[filtro2].shape[0]
-    lower_education_rich = ((resultado__no_graduados_ricos / lower_educationh) * 100).round(1)
+    lower_education_rich = (df[~df['education'].isin(['Bachelors', 'Masters', 'Doctorate'])]['salary'].value_counts(normalize=True)['>50K'] * 100).round(1)
+    #filtro2 = ~df['education'].isin(['Bachelors', 'Masters', 'Doctorate']) & (df['salary'] == '>50K')
+    #resultado__no_graduados_ricos = df[filtro2].shape[0]
+    #lower_education_rich = ((resultado__no_graduados_ricos / lower_education) * 100).round(1)
+
+
 
     # What is the minimum number of hours a person works per week (hours-per-week feature)?
-    min_work_hours = None
+    min_work_hours = df['hours-per-week'].min()
 
     # What percentage of the people who work the minimum number of hours per week have a salary of >50K?
-    num_min_workers = None
+    # Filtrar el DataFrame para obtener las personas que trabajan el número mínimo de horas por semana
+    min_work_df = df[df['hours-per-week'] == min_work_hours]
+    # Contar el número de personas que trabajan el número mínimo de horas por semana y tienen un salario mayor a 50K
+    num_min_workers_with_high_salary = min_work_df[min_work_df['salary'] == '>50K'].shape[0]
+    # Calcular el número total de personas que trabajan el número mínimo de horas por semana
+    num_min_workers = min_work_df.shape[0]
 
-    rich_percentage = None
+    num_min_workers = (num_min_workers_with_high_salary / num_min_workers) * 100
+
+    rich_percentage = rich_percentage = 100 - (higher_education_rich + lower_education_rich)
 
     # What country has the highest percentage of people that earn >50K?
-    highest_earning_country = None
-    highest_earning_country_percentage = None
+    earning_by_country = df.groupby('native-country')['salary'].apply(lambda x: (x == '>50K').mean() * 100)
+    highest_earning_country = earning_by_country.idxmax()
+    highest_earning_country_percentage =earning_by_country.max()
 
     # Identify the most popular occupation for those who earn >50K in India.
-    top_IN_occupation = None
+    top_IN_occupation =df[(df['native-country'] == 'India') & (df['salary'] == '>50K')]['occupation'].mode().values[0]
 
     # DO NOT MODIFY BELOW THIS LINE
 
